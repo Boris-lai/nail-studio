@@ -3,11 +3,11 @@ import { useUser } from "../hooks/auth/useUser";
 import { Spinner } from "./Spinner";
 
 const ProtectedRoute = () => {
-  const { isLoading, isAuthenticated } = useUser();
+  const { user, isLoading, isAuthenticated } = useUser();
 
   if (isLoading) return <Spinner />;
 
-  if (!isAuthenticated) {
+  if (user?.email !== "boris@gmail.com") {
     return <Navigate to="/login" replace />;
   }
 
