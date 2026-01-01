@@ -3,7 +3,7 @@ import { useUser } from "../hooks/auth/useUser";
 import { Spinner } from "./Spinner";
 
 const ProtectedRoute = () => {
-  const { user, isLoading, isAuthenticated } = useUser();
+  const { user, isLoading } = useUser();
 
   if (isLoading) return <Spinner />;
 
