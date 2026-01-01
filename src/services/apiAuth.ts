@@ -17,7 +17,7 @@ export async function login({ email, password }: loginTypes) {
 }
 
 export async function logout() {
-  const { error } = await supabase.auth.signOut();
+  await supabase.auth.signOut();
 }
 
 export async function getCurrentUser() {

@@ -8,17 +8,18 @@ import { useDeleteAppointment } from "../hooks/appointment/useDeleteAppointment"
 interface EditAppointmentModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (
-    updatedData: Partial<AdminAppointment>,
-    shouldNotify: boolean
-  ) => void;
+  onSave: (updatedData: {
+    id: string;
+    date: string;
+    timeSlot: string;
+    status: string;
+  }) => void;
   appointment: AdminAppointment | null;
 }
 
 export const EditAppointmentModal: React.FC<EditAppointmentModalProps> = ({
   isOpen,
   onClose,
-  onSave,
   appointment,
 }) => {
   const [date, setDate] = useState("");

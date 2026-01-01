@@ -10,10 +10,9 @@ import {
   Search,
   LogOut,
   Bell,
-  LogOutIcon,
 } from "lucide-react";
 import type { AdminAppointment } from "../types";
-import { AppointmentStatus, NailStyle, ServiceType } from "../types";
+import { AppointmentStatus } from "../types";
 import { LinePreviewModal } from "../components/LinePreviewModal";
 import { Modal } from "../components/Modal";
 import { EditAppointmentModal } from "../components/EditAppointmentModal";
@@ -28,7 +27,7 @@ const Dashboard: React.FC = () => {
     useState<AdminAppointment | null>(null);
 
   const { appointments, isLoading } = useAppointment();
-  const { updateAppointment } = useUpdateAppointment();
+  const { mutate: updateAppointment } = useUpdateAppointment();
 
   const { logout } = useLogout();
 
@@ -100,10 +99,12 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const handleSaveEdit = (
-    updatedData: Partial<AdminAppointment>,
-    shouldNotify: boolean
-  ) => {
+  const handleSaveEdit = (updatedData: {
+    id: string;
+    date: string;
+    timeSlot: string;
+    status: string;
+  }) => {
     // setAppointments((prev) =>
     //   prev.map((apt) =>
     //     apt.id === updatedData.id ? { ...apt, ...updatedData } : apt
@@ -298,7 +299,7 @@ const Dashboard: React.FC = () => {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex flex-wrap gap-1">
-                          {apt.services.map((s) => (
+                          {apt.services.map((s: string) => (
                             <span
                               key={s}
                               className="px-2 py-0.5 bg-stone-100 text-stone-500 text-xs rounded-md"

@@ -13,7 +13,7 @@ export async function getAppointments() {
 }
 
 export async function createAppointment(newAppointment: AppointmentFormData) {
-  const { data, error } = await supabase
+  await supabase
     .from("appointments")
     .insert([
       {
