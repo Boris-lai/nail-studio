@@ -10,6 +10,8 @@ import {
   Search,
   LogOut,
   Bell,
+  Menu,
+  X,
 } from "lucide-react";
 import type { AdminAppointment } from "../types";
 import { AppointmentStatus } from "../types";
@@ -34,6 +36,7 @@ const Dashboard: React.FC = () => {
   // Modals state
   const [isLineModalOpen, setIsLineModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Unified Success Modal State
   const [successModalConfig, setSuccessModalConfig] = useState({
@@ -156,11 +159,30 @@ const Dashboard: React.FC = () => {
   return (
     <div className="flex min-h-screen bg-stone-50 font-sans">
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-stone-200 hidden md:flex flex-col fixed h-full z-10">
-        <div className="p-6 border-b border-stone-100">
+      {/* Mobile Backdrop */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/20 z-30 md:hidden backdrop-blur-sm"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside 
+        className={`fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-stone-200 flex flex-col transition-transform duration-300 ease-in-out md:translate-x-0 ${
+          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        <div className="p-6 border-b border-stone-100 flex justify-between items-center">
           <h1 className="text-xl font-serif font-bold text-morandi-text tracking-wider">
             NAIL ADMIN
           </h1>
+          <button 
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="md:hidden p-1 text-stone-400 hover:text-stone-600"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
         <nav className="flex-1 p-4 space-y-2">
           <a
@@ -197,14 +219,22 @@ const Dashboard: React.FC = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 md:ml-64 p-8">
+      <main className="flex-1 md:ml-64 p-4 md:p-8 min-h-screen">
         {/* Top Bar */}
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h2 className="text-2xl font-bold text-stone-700">早安 😁😆🥹</h2>
-            <p className="text-stone-400 text-sm mt-1">今天也是美好的一天 ✨</p>
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="md:hidden p-2 -ml-2 text-stone-500 hover:bg-stone-100 rounded-lg transition-colors"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+            <div>
+              <h2 className="text-2xl font-bold text-stone-700">早安 😁😆🥹</h2>
+              <p className="text-stone-400 text-sm mt-1">今天也是美好的一天 ✨</p>
+            </div>
           </div>
-          <div className="flex gap-4">
+          <div className="flex gap-4 self-end md:self-auto">
             <div className="relative">
               <input
                 type="text"
@@ -269,7 +299,7 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Appointment Table */}
+        {/* Appointment Table / Cards */}
         <div className="bg-white rounded-2xl shadow-sm border border-stone-100 overflow-hidden">
           <div className="p-6 border-b border-stone-100 flex justify-between items-center">
             <h3 className="text-lg font-bold text-stone-700">近期預約審核</h3>
@@ -278,11 +308,14 @@ const Dashboard: React.FC = () => {
             </button>
           </div>
 
-          <div className="overflow-x-auto flex justify-center">
+          <div className="flex justify-center">
             {isLoading ? (
-              <Spinner />
+              <div className="p-8"><Spinner /></div>
             ) : (
-              <table className="w-full text-left border-collapse">
+              <>
+                {/* Desktop Table View */}
+                <div className="hidden md:block w-full overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-stone-50/50 text-stone-500 text-xs uppercase tracking-wider">
                     <th className="px-6 py-4 font-semibold">預約時間</th>
@@ -368,7 +401,77 @@ const Dashboard: React.FC = () => {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+
+                </table>
+                </div>
+
+                {/* Mobile Card View */}
+                <div className="md:hidden divide-y divide-stone-100">
+                  {appointments.map((apt) => (
+                    <div key={apt.id} className="p-4 space-y-3">
+                      <div className="flex justify-between items-start">
+                        <div className="flex gap-3">
+                          <div className="flex-col">
+                            <span className="font-bold text-stone-700 block">
+                              {apt.date}
+                            </span>
+                            <span className="text-sm text-stone-400">
+                              {apt.timeSlot}
+                            </span>
+                          </div>
+                        </div>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(
+                            apt.status
+                          )}`}
+                        >
+                          {apt.status}
+                        </span>
+                      </div>
+
+                      <div className="flex justify-between items-center">
+                         <div>
+                            <div className="font-medium text-stone-800">{apt.name}</div>
+                            <div className="text-xs text-stone-500 font-mono">{apt.phone}</div>
+                         </div>
+                         <div className="text-right">
+                             <div className="text-sm text-stone-600 font-medium">{apt.style}</div>
+                             <div className="flex gap-1 justify-end mt-1">
+                                {apt.services.map((s: string) => (
+                                    <span key={s} className="text-[10px] px-1.5 py-0.5 bg-stone-100 text-stone-500 rounded">
+                                        {s}
+                                    </span>
+                                ))}
+                             </div>
+                         </div>
+                      </div>
+
+                      <div className="flex justify-end gap-2 pt-2 border-t border-stone-50/50">
+                          {apt.status === AppointmentStatus.PENDING && (
+                            <button
+                              onClick={() => handleApproveClick(apt)}
+                              className="flex-1 inline-flex justify-center items-center gap-1 px-3 py-2 bg-morandi-secondary text-stone-600 rounded-lg text-sm font-medium shadow-sm shadow-morandi-secondary/30 active:scale-95 transition-all"
+                            >
+                              <Send className="w-4 h-4" />
+                              審核並通知
+                            </button>
+                          )}
+                           <button
+                             onClick={() => handleEditClick(apt)}
+                             className="p-2 text-stone-400 hover:text-stone-600 bg-stone-50 rounded-lg"
+                           >
+                             <Edit2 className="w-5 h-5" />
+                           </button>
+                      </div>
+                    </div>
+                  ))}
+                  {appointments.length === 0 && (
+                      <div className="p-8 text-center text-stone-400 text-sm">
+                          目前沒有預約
+                      </div>
+                  )}
+                </div>
+              </>
             )}
           </div>
         </div>
