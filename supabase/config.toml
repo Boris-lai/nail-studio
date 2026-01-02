@@ -1,0 +1,5 @@
+project_id = "nail-studio"
+
+
+[functions.line-auth]
+verify_jwt = false

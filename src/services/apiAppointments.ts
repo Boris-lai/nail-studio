@@ -13,10 +13,15 @@ export async function getAppointments() {
 }
 
 export async function createAppointment(newAppointment: AppointmentFormData) {
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) throw new Error("User not authenticated");
+
   await supabase
     .from("appointments")
     .insert([
       {
+        user_id: user.id, // Add this
         name: newAppointment.name,
         phone: newAppointment.phone,
         contactId: newAppointment.contactId,

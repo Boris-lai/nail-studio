@@ -75,27 +75,48 @@ const Dashboard: React.FC = () => {
     setIsEditModalOpen(true);
   };
 
-  const handleSendNotification = () => {
+  const handleSendNotification = async () => {
     if (selectedAppointment) {
-      // Update status
-      // setAppointments((prev) =>
-      //   prev.map((apt) =>
-      //     apt.id === selectedAppointment.id
-      //       ? { ...apt, status: AppointmentStatus.CONFIRMED }
-      //       : apt
-      //   )
-      // );
+      try {
+        const response = await fetch(
+          "https://qkgglpyddnmyhoybssye.supabase.co/functions/v1/send-confirmation",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+            },
+            body: JSON.stringify({ appointment_id: selectedAppointment.id }),
+          }
+        );
 
-      setIsLineModalOpen(false);
-      // Small delay for UX
-      setTimeout(() => {
-        setSuccessModalConfig({
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "發送失敗");
+        }
+
+        // Update local state or refetch
+         setSuccessModalConfig({
           isOpen: true,
           title: "發送成功",
           message: "已發送 LINE 通知給客人，並將預約狀態更新為「已確認」。",
         });
-      }, 300);
-      setSelectedAppointment(null);
+        
+        // Optimistic update
+        // In a real app, react-query invalidation is better
+        // updateAppointment({ id: selectedAppointment.id, status: AppointmentStatus.CONFIRMED });
+
+      } catch (error) {
+        console.error(error);
+         setSuccessModalConfig({
+          isOpen: true,
+          title: "發送失敗",
+          message: "無法發送 LINE 通知，請稍後再試。",
+        });
+      } finally {
+        setIsLineModalOpen(false);
+        setSelectedAppointment(null);
+      }
     }
   };
 

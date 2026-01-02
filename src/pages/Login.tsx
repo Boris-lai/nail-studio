@@ -25,6 +25,12 @@ const Login: React.FC = () => {
     login(formData);
   };
 
+  const handleLineLogin = () => {
+    const projectRef = "qkgglpyddnmyhoybssye"; 
+    const functionUrl = `https://${projectRef}.supabase.co/functions/v1/line-auth?action=init`;
+    window.location.href = functionUrl;
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-morandi-bg relative overflow-hidden">
       {/* Background decoration */}
@@ -105,7 +111,19 @@ const Login: React.FC = () => {
               <span>登入</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
-            <div className="mt-8 text-center">
+            <div className="mt-8 text-center space-y-4">
+              <button
+                type="button"
+                onClick={handleLineLogin}
+                className="w-full py-3.5 bg-[#06C755] hover:bg-[#05b34c] text-white rounded-xl font-medium tracking-wide shadow-lg shadow-[#06C755]/20 transform active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2"
+              >
+                {/* LINE Icon */}
+                <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                  <path d="M20.8 10.4c0-4.6-4.5-8.4-10-8.4s-10 3.8-10 8.4c0 4.1 3.6 7.6 8.4 8.2.3.1.8.2.9 0l.2-1.3c.1-.4 0-.5-.3-.7-1.1-.6-1.8-1.5-1.8-2.6 0-2.8 3-5.1 6.8-5.1 3.7 0 6.6 2.3 6.6 5.1 0 2.8-2.9 5.1-6.5 5.1-1.2 0-2.4-.3-3.4-.8l-3 1c-.8.3-1.3.1-1-.8l.8-4.2C3.1 14.7 6.4 18 10.8 18c5.5 0 10-3.8 10-7.6z" />
+                </svg>
+                <span>LINE 登入</span>
+              </button>
+
               <Link
                 to="/register"
                 // onClick={goHome}
