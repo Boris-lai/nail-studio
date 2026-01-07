@@ -7,8 +7,8 @@ const ProtectedRoute = () => {
 
   if (isLoading) return <Spinner />;
 
-  if (user?.email !== "boris@gmail.com") {
-    return <Navigate to="/login" replace />;
+  if (!user || user?.email !== "boris@gmail.com") {
+    return <Navigate to="/adminlogin" replace />;
   }
 
   return <Outlet />;

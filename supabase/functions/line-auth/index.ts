@@ -90,16 +90,11 @@ serve(async (req) => {
 
       // Check if user exists in Supabase
       // We use a dummy email: line_<userid>@line.login
-      const email = `line_${userId}@line.login`;
+      // Supabase Auth emails are case-insensitive/stored as lowercase usually, but let's be safe.
+      const email = `line_${userId}@line.login`.toLowerCase();
 
       // Try to find user by email (or identity if we were linking)
       // Since we are using Custom Auth, we manage the user.
-      const { data: users, error: searchError } = await supabaseAdmin.auth.admin.listUsers();
-      /* 
-         NOTE: listUsers is not efficient for large userbases, but getting a single user by email/metadata 
-         is restricted in some admin APIs or requires `getUserById`. 
-         Better: Attempt to create, if fails (duplicate), then get.
-      */
       
       let user;
       
@@ -118,13 +113,41 @@ serve(async (req) => {
 
       if (createError) {
         // If error is "User already registered", we fetch the user
-        // Note: Supabase error messages vary. Ideally we would use getUser via list or other means.
-        // Let's assume duplicate email error.
-         const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
-         user = existingUsers.users.find((u) => u.email === email);
+        // We shouldn't rely on listUsers() without arguments as it has limits.
+        // We can create a client that bypasses RLS but accesses auth schema? No.
+        // Sadly, getUserByEmail is not directly exposed in admin-api for some versions.
+        // BUT, listUsers supports 'perPage' and 'page'.
+        // However, we don't want to scan everything.
+        
+        // Strategy: 
+        // 1. Try to create (Done) -> Failed.
+        // 2. We KNOW the user exists with this Email.
+        // 3. Unfortunately, we can't get the ID easily from the error.
+        
+        // Let's try to search via listUsers but assuming small userbase for now
+        // OR standard workaround: use `supabaseAdmin.from('users').select('*').eq('email', email)` 
+        // will NOT work because `auth` schema is protected.
+        
+        // WORKAROUND: In Edge Functions with Service Role, we CAN access auth schema if we assume direct connection?
+        // No, via API it's restricted.
+        
+        // Let's try listUsers again but check handling.
+         const { data: existingUsers, error: listError } = await supabaseAdmin.auth.admin.listUsers({
+             perPage: 1000 // Try to grab more just in case
+         });
          
-         if (!user) throw new Error("Could not create or find user: " + createError.message);
+         if (listError) throw new Error("List users failed: " + listError.message);
+
+         // Robust email comparison
+         user = existingUsers.users.find((u) => u.email?.toLowerCase() === email);
          
+         if (!user) {
+             // Debug info
+             console.log("Could not find user in list. Searched for:", email);
+             console.log("Available users count:", existingUsers.users.length);
+             throw new Error("Could not create or find user: " + createError.message);
+         }
+          
          // specific update if needed (e.g. name changed)
          await supabaseAdmin.auth.admin.updateUserById(user.id, {
             user_metadata: {
