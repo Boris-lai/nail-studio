@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Mail, Lock, ArrowRight, Sparkles } from "lucide-react";
 import { LoadingOverlay } from "../components/Spinner";
 import { useLogin } from "../hooks/auth/useLogin";
-import { Link } from "react-router-dom";
 
 const AdminLogin: React.FC = () => {
   const { login, isPending } = useLogin();
