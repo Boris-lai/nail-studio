@@ -202,8 +202,8 @@ serve(async (req) => {
           type: "magiclink",
           email: email,
           options: {
-            // redirectTo: "http://localhost:5173/reservation"
-            redirectTo: "https://nail-studio-six.vercel.app/reservation",
+            redirectTo: "http://localhost:5173/reservation"
+            // redirectTo: "https://nail-studio-six.vercel.app/reservation",
           },
         });
 
