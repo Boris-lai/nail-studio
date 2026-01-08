@@ -9,8 +9,7 @@ const ProtectedRoute = () => {
 
   if (!user || user?.email !== "boris@gmail.com") {
     return <Navigate to="/adminlogin" replace />;
-  }
-
+  } 
   return <Outlet />;
 };
 
