@@ -20,6 +20,7 @@ export function useLogin() {
       queryClient.setQueryData(["user"], user);
       toast.success("登入成功!");
       if (user.user.email === "boris@gmail.com") {
+        console.log(user.user.email)
         navigate("/dashboard");
       } else {
         navigate("/")
